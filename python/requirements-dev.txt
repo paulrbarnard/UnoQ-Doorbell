@@ -1,0 +1,8 @@
+# Off-board development and tests (the board container already has these).
+# Match the board: python-apps-base 0.12.0 ships OpenCV 4.13.
+opencv-python-headless>=4.13,<5
+numpy
+pyyaml
+pytest
+fastapi
+uvicorn

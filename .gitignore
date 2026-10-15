@@ -1,0 +1,22 @@
+# Runtime data written on the board (events, snapshots, config overrides)
+data/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Arduino build artifacts
+sketch/build/
+*.bin
+*.elf
+
+# App Lab cache
+.cache/
+
+# HomeKit pairing state (holds the accessory's keys)
+homekit/state/
+
+.DS_Store
+.vscode/

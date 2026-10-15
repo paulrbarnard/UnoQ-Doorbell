@@ -1,0 +1,11 @@
+# Arduino App Lab app. python/main.py and sketch/sketch.ino are found by
+# folder convention. Listing a brick here makes arduino.app_bricks.<brick>
+# importable and starts any container it needs (object_detection brings up the
+# Edge Impulse models runner with YOLOX-nano).
+name: Doorbell
+description: "Video doorbell: IO2 bell button, delivery detection, HomeKit + iPhone push"
+icon: 🔔
+ports: []
+bricks:
+  - arduino:web_ui
+  - arduino:object_detection

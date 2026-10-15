@@ -1,0 +1,7 @@
+# Arduino_RouterBridge resolves on its own for arduino:zephyr (same as
+# GlassKilnController); no extra libraries needed.
+profiles:
+  default:
+    platforms:
+      - platform: arduino:zephyr
+default_profile: default

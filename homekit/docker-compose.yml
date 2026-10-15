@@ -1,0 +1,26 @@
+# Runs next to the App Lab app, not under it: HomeKit needs host networking
+# for Bonjour/mDNS, and App Lab containers use a bridge network.
+name: doorbell-homekit
+services:
+  hap:
+    build: .
+    image: unoq-doorbell-homekit:latest
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      APP_URL: http://127.0.0.1:7000
+      HOST_IP: 192.168.0.115
+      ACCESSORY_NAME: Front Door
+      H264_ENCODER: libx264      # h264_v4l2m2m segfaults at 720p; see docs/findings.md
+      STATE_FILE: /state/accessory.state
+    volumes:
+      - ./state:/state           # pairing keys; keep it to stay paired
+    devices:
+      - /dev/video8:/dev/video8  # Venus H.264 encoder
+    group_add:
+      - video
+    logging:
+      driver: json-file
+      options:
+        max-file: "2"
+        max-size: 5m

@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: CC0-1.0
+# libcamera soft ISP tuning for the IMX219 with the 200-degree fisheye lens on
+# Valentina. Picked up through LIBCAMERA_IPA_CONFIG_PATH (set in main.py),
+# in place of the stock uncalibrated.yaml.
+#
+# Calibrated 2026-10-10 from raw 10-bit frames of an X-Rite ColorChecker
+# Classic, indoor daylight (python/tools/calibrate_raw.py, docs/findings.md).
+# Black level is active below; the CCM is not (see the note at Ccm). Blues
+# and other near-IR-reflective patches stay light: the lens seems to have no
+# IR-cut filter.
+%YAML 1.1
+---
+version: 1
+algorithms:
+  - BlackLevel:
+      blackLevel: 4096   # 64 in 10-bit, measured with the lens covered (16-bit scale)
+  - Awb:
+  # Linear-domain CCM from the same calibration. Off: in the soft ISP it more
+  # than doubles the debayer cost (22 -> 51 ms/frame, app CPU ~130% -> ~270%).
+  # The app applies an equivalent gamma-domain CCM to viewed frames instead
+  # (camera.ccm in python/config/doorbell.yaml).
+  # - Ccm:
+  #     ccms:
+  #       - ct: 5000
+  #         ccm: [ 1.7604, -1.0187,  0.2583,
+  #               -0.5556,  1.6627, -0.1072,
+  #               -0.0311, -0.9169,  1.9479 ]
+  - Adjust:
+  - Agc:
+...

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doorbell</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Doorbell</h1>
+      <div class="chips" id="chips"></div>
+    </header>
+
+    <main>
+      <section class="live">
+        <div class="view" id="view">
+          <img id="stream" alt="Live camera" />
+          <canvas id="overlay"></canvas>
+        </div>
+        <div class="toolbar">
+          <button id="btn-bell">Simulate bell</button>
+          <button id="btn-delivery">Simulate delivery</button>
+          <button id="btn-push">Test push</button>
+          <span class="sep"></span>
+          <label>Edit zone
+            <select id="zone-select">
+              <option value="">(none)</option>
+              <option value="approach">Approach</option>
+              <option value="doorstep">Doorstep</option>
+              <option value="postbox">Post box</option>
+            </select>
+          </label>
+          <span class="hint" id="zone-hint">Choose a zone, then drag on the image to redraw it.</span>
+        </div>
+        <dl class="status" id="status"></dl>
+      </section>
+
+      <section class="side">
+        <h2>Events</h2>
+        <ul class="events" id="events"></ul>
+
+        <details class="settings">
+          <summary>Settings</summary>
+          <form id="settings">
+            <fieldset>
+              <legend>iPhone push (Pushover)</legend>
+              <label>App API token <input name="notify.pushover_token" autocomplete="off" spellcheck="false" /></label>
+              <label>User key <input name="notify.pushover_user" autocomplete="off" spellcheck="false" /></label>
+              <label>Bell sound <input name="notify.bell_sound" placeholder="incoming" /></label>
+              <label>Delivery sound <input name="notify.delivery_sound" placeholder="magic" /></label>
+              <label>Post sound <input name="notify.post_sound" placeholder="bike" /></label>
+              <label class="check"><input type="checkbox" name="notify.on_bell" /> Bell</label>
+              <label class="check"><input type="checkbox" name="notify.on_delivery" /> Delivery</label>
+              <label class="check"><input type="checkbox" name="notify.on_post" /> Post</label>
+              <label class="check"><input type="checkbox" name="notify.on_visit" /> Other visits</label>
+            </fieldset>
+            <fieldset>
+              <legend>Visits</legend>
+              <label>Leave after (s) <input type="number" step="1" name="visit.leave_after_s" /></label>
+              <label>Arrive hits <input type="number" step="1" name="visit.arrive_hits" /></label>
+              <label>of last <input type="number" step="1" name="visit.arrive_window" /></label>
+              <label>Min dwell (s) <input type="number" step="0.5" name="visit.min_dwell_s" /></label>
+            </fieldset>
+            <fieldset>
+              <legend>Detection</legend>
+              <label>Confidence <input type="number" step="0.05" min="0" max="1" name="detector.confidence" /></label>
+              <label>Parcel: changed share <input type="number" step="0.01" min="0" max="1" name="doorstep.changed_fraction" /></label>
+              <label>Parcel: pixel threshold <input type="number" step="1" name="doorstep.diff_threshold" /></label>
+            </fieldset>
+            <button type="submit">Save</button>
+            <span class="hint" id="settings-msg"></span>
+          </form>
+        </details>
+      </section>
+    </main>
+
+    <dialog id="event-dialog">
+      <form method="dialog"><button class="close">Close</button></form>
+      <h3 id="event-title"></h3>
+      <p id="event-detail"></p>
+      <div class="shots" id="event-shots"></div>
+    </dialog>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

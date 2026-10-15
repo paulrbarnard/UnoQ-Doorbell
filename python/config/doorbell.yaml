@@ -1,0 +1,89 @@
+# Doorbell defaults. The web page saves changes to data/config.yaml (in the app
+# folder, not in git), and those values override this file.
+
+camera:
+  # 1632x1232 is the IMX219 2x2-binned mode after the soft ISP trims 8 px.
+  # Anything wider (e.g. 1640x1232) makes libcamera fall back to the full-res
+  # mode and centre-crop; anything smaller is a crop of the binned mode.
+  # See docs/findings.md (2026-09-25).
+  capture_size: [1632, 1232]
+  fps: 10
+  display_size: [960, 724]       # live view size (INTER_AREA); the long side is used, aspect follows rotate
+  jpeg_quality: 75
+  white_balance: true            # gray-world fix for the uncalibrated soft ISP tint
+  # The lens's image circle is taller than the sensor, so the top and bottom of
+  # the fisheye circle are cut off. Turning the camera 90 degrees in its
+  # housing shows the full height; then set 90 or 270 here so it's upright
+  # (portrait).
+  rotate: 0                      # 0, 90, 180, 270 (clockwise)
+  # Colour correction matrix (R,G,B rows, applied to the gamma-encoded picture),
+  # fitted 2026-10-10 from raw frames of a ColorChecker (python/tools/calibrate_raw.py
+  # --gamma-domain). Mean dE 23.3 -> 9.5. Set to null to turn it off.
+  ccm: [[ 1.9555, -1.0818,  0.1263],
+        [-0.8341,  2.1957, -0.3615],
+        [-0.0155, -1.7617,  2.7772]]
+
+detector:
+  confidence: 0.5                # was 0.45; backlit pillar "ghosts" scored 0.38–0.50
+  interval_s: 0.4                # time between detections (~2.5 fps)
+  labels: [person]
+  backlight_clahe: 2.0           # local contrast boost on the detector input (0 = off)
+  ignore_static: true            # ignore "people" that don't move ...
+  static_after_s: 60             #   ... for this long (centre within static_max_move)
+  static_max_move: 0.02          #   fraction of the frame
+  static_forget_s: 600           # forget an ignored spot after this long unseen
+
+# Zones are fractions of the full frame: [x0, y0, x1, y1].
+zones:
+  # A person only counts as "at the door" when the bottom-centre of their box
+  # (their feet) is inside this zone. Detection also runs on a crop of it, so
+  # keep it tight around the path to the door.
+  approach: [0.15, 0.25, 0.85, 1.0]
+  # Where parcels get left. It's compared before arrival and after departure.
+  doorstep: [0.35, 0.65, 0.65, 0.95]
+  # The post box (optional). Someone reaching into it during a visit makes the
+  # visit "post" (unless a parcel was left on the doorstep: that's a delivery).
+  postbox: [0.43, 0.62, 0.54, 0.85]
+
+post:
+  min_overlap: 0.15              # a person box must cover this share of the postbox zone ...
+  min_frames: 4                  # ... in this many detections (~2 s at 2 fps)
+  # A person box this big (fraction of the frame) is right by the camera, at the
+  # house door. A visit that ends that close went into the house: a resident
+  # collecting the post, not a delivery to the post box.
+  near_area: 0.10
+
+visit:
+  arrive_hits: 3                 # person seen in >= this many ...
+  arrive_window: 5               # ... of the last N detections to start a visit
+  leave_after_s: 8               # absent this long = visit over
+  settle_s: 3                    # wait after departure before the "after" doorstep shot
+  max_visit_s: 900               # force-close very long visits
+  min_dwell_s: 2                 # ignore blips shorter than this
+
+doorstep:
+  diff_threshold: 28             # per-pixel grey difference that counts as change
+  changed_fraction: 0.06         # fraction of the ROI that must change = parcel left
+  highlight: 215                 # ignore areas already this bright before (Lab L, 0-255): no detail there
+  stable_s: 2                    # after a visit, the doorstep must look the same in two
+  stable_tries: 6                #   shots this far apart (nobody detected) before it's compared
+
+events:
+  keep_days: 14
+  keep_max: 300
+
+notify:
+  # Pushover keys: set these from the web page (they're saved in data/config.yaml
+  # on the board, never in git).
+  pushover_token: ""             # API token of a "Doorbell" app made at pushover.net/apps/build
+  pushover_user: ""              # your user key
+  # Sound names: built-in ones (pushover, bike, bugle, incoming, magic, ...) or a
+  # custom sound uploaded at pushover.net (use the name shown there).
+  bell_sound: incoming
+  delivery_sound: magic
+  post_sound: bike
+  default_sound: pushover
+  on_bell: true
+  on_delivery: true
+  on_post: true
+  on_visit: false
